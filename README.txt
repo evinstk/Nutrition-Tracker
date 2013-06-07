@@ -1,0 +1,1 @@
+This is a webapp nutrition tracker for foods eaten. It records daily meals and the caloric and macronutrient content of each food, then measures the food against daily requirements and outputs in a graphic.
