@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Meal Records</title>
+<script type="text/javascript" src="jquery-1.10.1.min.js"></script>
+<script type="text/javascript" id="main">
+var NUTRITION_INFO = getNutritionInfo();
+
+function getNutritionInfo() {
+    var ret;
+    $.ajax({
+	    url: "nutrition.php",
+		type: "get",
+		dataType: "json",
+		async: false,
+		success: function(data) {
+		    ret = data;
+		}
+	});
+	return ret;
+}
+
+function getItemByName(name, array) {
+    for (var i = 0; i < array.length; i++) {
+	    if (array[i].Name == name) {
+		    return array[i];
+		}
+	}
+	return false;
+}
+
+function appendSelectOptions(array, appendTo) {
+    var foods = "<datalist id=\"food-list\"";
+    for (var i = 0; i < array.length; i++) {
+	    foods += "<option value=\"" + array[i].Name + "\">";
+	}
+	foods += "</datalist>"
+	$(appendTo).append($(foods));
+}
+
+function appendFoodNutrition(nutrition, appendTo) {
+    var selectedFood = getItemByName($("#food-select").val(), NUTRITION_INFO);
+	var nutritionInfo = { Calories:selectedFood.Calorie,
+	                  Fat:selectedFood.Fat,
+					  Carbs:selectedFood.Carb,
+					  Fiber:selectedFood.Fiber,
+					  Protein:selectedFood.Protein }
+	var servings = $("#servings").val();
+	var nutritionList = $("#food-nutrition").find("ul");
+	
+	nutritionList.empty();
+	$.each(nutritionInfo, function(key, value) {
+	    var listItem = $("<li id=\"" + key + "\">" + key + ": " + parseFloat(value * servings) + "g</li>");
+		nutritionList.append(listItem);
+	});
+}
+
+//Event Listeners
+function listenToFoodChange() {
+    $("#food-select").on("change keyup", appendFoodNutrition);
+	$("#servings").on("keyup", appendFoodNutrition);
+}
+
+$(document).ready(function() {
+	appendSelectOptions(NUTRITION_INFO, "#toolbar");
+	appendFoodNutrition(NUTRITION_INFO, "#food-nutrition");
+	listenToFoodChange();
+});
+
+</script>
+
+</head>
+
+<body>
+<div id="toolbar">
+    <input id="food-select" list="food-list" class="toolbar-item">
+	<input id="servings" class="toolbar-item" type="text" value="1" />
+	<button id="add" class="toolbar-item" type="button">Add Food</button>
+</div>
+<div id="food-nutrition">
+    <span>
+	<ul>
+	</ul>
+	</span>
+</div>
+</body>
+</html>
