@@ -2,9 +2,13 @@
 <html>
 <head>
 <title>Meal Records</title>
-<script type="text/javascript" src="jquery-1.10.1.min.js"></script>
+<script type="text/javascript" src="/javascript/jquery-1.10.1.min.js"></script>
+<script type="text/javascript" src="/javascript/user-script.js"></script>
 <script type="text/javascript" id="main">
 var NUTRITION_INFO = getNutritionInfo();
+
+var user = new User("evinstk", "Jellybean1");
+var macros = getMacros(user);
 
 function getNutritionInfo() {
     var ret;
@@ -15,6 +19,24 @@ function getNutritionInfo() {
 		async: false,
 		success: function(data) {
 		    ret = data;
+		}
+	});
+	return ret;
+}
+
+function getMacros(user) {
+	var ret;
+	$.ajax({
+		url: "macros.php",
+		data: {
+                    username: user.username,
+                    password: user.password
+                },
+		type: "get",
+		dataType: "json",
+		async: false,
+		success: function(data) {
+			ret = data;
 		}
 	});
 	return ret;
@@ -39,7 +61,7 @@ function appendSelectOptions(array, appendTo) {
 }
 
 function appendFoodNutrition(nutrition, appendTo) {
-    var selectedFood = getItemByName($("#food-select").val(), NUTRITION_INFO);
+	var selectedFood = getItemByName($("#food-select").val(), NUTRITION_INFO);
 	var nutritionInfo = { Calories:selectedFood.Calorie,
 	                  Fat:selectedFood.Fat,
 					  Carbs:selectedFood.Carb,
@@ -61,6 +83,9 @@ function listenToFoodChange() {
 	$("#servings").on("keyup", appendFoodNutrition);
 }
 
+function listenToAdd() {
+	$("#add").on("click", updateTotals);
+}
 $(document).ready(function() {
 	appendSelectOptions(NUTRITION_INFO, "#toolbar");
 	appendFoodNutrition(NUTRITION_INFO, "#food-nutrition");
